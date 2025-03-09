@@ -58,8 +58,8 @@ def takeCommands():
             print(f"Recognized: {query}")
             speak(query)
             time.sleep(3)   
-        # except sr.UnknownValueError:
-        #     speak("Sorry, I did not understand Please say that again.")
+        except sr.UnknownValueError:
+            print("Sorry, I did not understand Please say that again.")
         except sr.RequestError as e:
             print(f"Error with the recognition service: {e}")
     return query or "No input received"
@@ -68,17 +68,19 @@ def takeCommands():
 def allCommands():
     query = takeCommands().lower()
     print(query)
+    try:
+        if "open" in query:
+            from engine.features import openCommand      
+            openCommand(query)
 
-    if "open" in query:
-        from engine.features import openCommand      
-        openCommand(query)
-
-    elif "play " in query :
-        from engine.features import playOnYoutube      
-        playOnYoutube(query)
-        
-    else:
-        speak("Sorry, I didn't understand that, plz try again..")
+        elif "play " in query :
+            from engine.features import playOnYoutube      
+            playOnYoutube(query)
+            
+        else:
+            speak("Sorry, I didn't understand that, plz try again..")
+    except:
+        print("a error found")
     eel.ShowHood()
 
     
