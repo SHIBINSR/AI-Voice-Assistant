@@ -3,18 +3,19 @@ import speech_recognition as sr
 import eel
 import time
 import datetime
-import webbrowser
-import wikipedia
-import pywhatkit
+
+from engine.config import ASSISTANT_NAME
+# import wikipedia
+# import os
 
 def wishme():
     time = datetime.datetime.now()
     if time.hour >= 0 and time.hour < 12:
-        speak("good morning sir,how can i help you")
+        speak("good morning sir,how can i assist you")
     elif time.hour >= 12 and time.hour < 15:
-        speak("good afternoon sir,how can i help you")
+        speak("good afternoon sir,how can i assist you")
     else:
-        speak("good evening sir,how can i help you")
+        speak("good evening sir,how can i assist you")
 
 def split_text_into_chunks(text, max_length=100):
     words = text.split()
@@ -37,6 +38,8 @@ def speak(text):
     for chunk in chunks:
         engine.say(chunk)
         engine.runAndWait()
+        engine.stop()  # Ensure cleanup
+        del engine
 
 @eel.expose
 def takeCommands():
@@ -54,31 +57,44 @@ def takeCommands():
             eel.DisplayMessage(query)
             print(f"Recognized: {query}")
             speak(query)
-            time.sleep(4)
-            eel.ShowHood() 
-        except :
-            speak("Sorry I did not understand Please say that again.")
-            # print(e)
-         
-    return query.lower() 
+            time.sleep(3)   
+        # except sr.UnknownValueError:
+        #     speak("Sorry, I did not understand Please say that again.")
+        except sr.RequestError as e:
+            print(f"Error with the recognition service: {e}")
+    return query or "No input received"
 
 @eel.expose
 def allCommands():
     query = takeCommands().lower()
     print(query)
 
-    if "open google" or "chrome"  in query:
-        speak("opening google.com...")
-        webbrowser.open("google.com")
-    elif "open youtube" in query:
-        speak("opening youtube..")
-        webbrowser.open("youtube.com")
-    elif "who is " in query or "wikipedia" in query:
-        query=query.replace("who is",'')
-        query=query.replace("wikipedia","")
-        summary=wikipedia.summary(query,sentences = 2) 
-        speak(summary)
-    elif "play " or "song " or "youtube" in query:
-        summary=pywhatkit.playonyt(query)
+    if "open" in query:
+        from engine.features import openCommand      
+        openCommand(query)
 
+    elif "play " in query :
+        from engine.features import playOnYoutube      
+        playOnYoutube(query)
+        
+    else:
+        speak("Sorry, I didn't understand that, plz try again..")
+    eel.ShowHood()
+
+    
+
+    
+
+    # elif "who is " in query or "wikipedia" in query:
+    #     query = query.replace("who is ", "").replace("wikipedia", "")
+    #     summary = wikipedia.summary(query, sentences=2)
+    #     speak(summary)
+
+    # 
+
+    
+    
+   
+
+    
 
