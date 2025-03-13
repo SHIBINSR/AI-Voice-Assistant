@@ -32,14 +32,17 @@ def split_text_into_chunks(text, max_length=100):
     return chunks
 
 def speak(text):
+    # text =  str(text)
     engine = pyttsx3.init()
-    engine.setProperty('rate',125)
+    engine.setProperty('rate',120)
+    eel.DisplayMessage(text)
     chunks = split_text_into_chunks(text)
     for chunk in chunks:
         engine.say(chunk)
+        eel.receiverText(chunk)
         engine.runAndWait()
         engine.stop()  # Ensure cleanup
-        del engine
+        # del engine
 
 @eel.expose
 def takeCommands():
@@ -56,7 +59,7 @@ def takeCommands():
             query = r.recognize_google(audio)  # Use Google's API instead of Google Cloud
             eel.DisplayMessage(query)
             print(f"Recognized: {query}")
-            speak(query)
+            # speak(query)
             time.sleep(3)   
         except sr.UnknownValueError:
             print("Sorry, I did not understand Please say that again.")
@@ -65,9 +68,14 @@ def takeCommands():
     return query or "No input received"
 
 @eel.expose
-def allCommands():
-    query = takeCommands().lower()
-    print(query)
+def allCommands(message=1):
+    if message == 1:
+        query = takeCommands().lower()
+        print(query)
+        eel.senderText(query)
+    else:
+        query = message
+        eel.senderText(query)
     try:
         if "open" in query:
             from engine.features import openCommand      
@@ -75,10 +83,16 @@ def allCommands():
 
         elif "play " in query :
             from engine.features import playOnYoutube      
-            playOnYoutube(query)
-            
+            playOnYoutube(query) 
+
+        elif "time" in query or "date" in query or "dates" in query:
+            from engine.features import get_time
+            get_time()       
+        
         else:
-            speak("Sorry, I didn't understand that, plz try again..")
+            # print("Query does not match 'open' or 'play':", query)  # Debugging line
+            from engine.features import chatBot
+            chatBot(query)
     except:
         print("a error found")
     eel.ShowHood()

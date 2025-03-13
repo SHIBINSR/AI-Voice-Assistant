@@ -1,3 +1,4 @@
 __pycache__/
 *.pyc
 aiassistant/
+/engine/cookies.json

@@ -4,19 +4,25 @@ from engine.config import ASSISTANT_NAME
 import os
 from engine.command import speak
 import webbrowser
-import subprocess
+import datetime
 import pywhatkit
 import struct
 import time
 import pvporcupine
 import pyaudio
+from hugchat import hugchat
 
+def get_time():
+    now = datetime.datetime.now()
+    date=now.strftime("Today is %A, %d %B %Y, and the time is %I:%M %p.")
+    print(date)
+    # eel.DisplayMessage((date))
+    speak(date)
 
 @eel.expose
 def playAssistantSound():
     music_dic = "frontend/assests/audio/start_sound.mp3"
     playsound(music_dic)
-
 
 def openCommand(query):
     query = query.replace(ASSISTANT_NAME,"")
@@ -25,28 +31,34 @@ def openCommand(query):
     
     if "open terminal" == query :
         try:
+            # eel.DisplayMessage("Opening Terminal....")
             speak("Opening terminal..")
             os.system("gnome-terminal")  
         except Exception as e:
             print(e)
 
     elif "text editor" in query:
+        # eel.DisplayMessage("Opening Text editor....")
         speak("Opening text editor..")
         os.system("gedit")
        
     elif "brave" in query:
-        speak("Opening brave ..")
+        # eel.DisplayMessage("Opening brave....")
+        speak("Opening brave...")
         os.system("brave-browser")
 
-    elif "open google" in query or "chrome" in query:
+    elif "google" in query or "chrome" in query:
+        # eel.DisplayMessage("Opening Google chrome....")
         speak("Opening Google chrome...")
         webbrowser.open("https://google.com")
 
-    elif "open youtube" in query or "youtube" in query:
+    elif "youtube" in query:
+        # eel.DisplayMessage("Opening youtube....")
         speak("Opening YouTube...")
         webbrowser.open("https://youtube.com")
 
     else:
+        # eel.DisplayMessage(f"The Application {query} not found")
         speak(f"The Application {query} not found")
         print("App not found!")
 
@@ -55,6 +67,7 @@ def playOnYoutube(query):
     query = query.replace("play","")
     query = query.replace("on youtube","")
     query.lower()
+    eel.DisplayMessage(f"Playing {query} on Youtube...")
     speak(f"Playing {query} on YouTube...")
     pywhatkit.playonyt(query)
    
@@ -99,3 +112,25 @@ def hotword():
             audio_stream.close()
         if paud is not None:
             paud.terminate()
+
+# chat bot 
+def chatBot(query):
+    # print(query)
+    try:
+        user_input = query.lower()
+        chatbot = hugchat.ChatBot(cookie_path="engine/cookies.json")
+        id = chatbot.new_conversation()
+        chatbot.change_conversation(id)
+        response = chatbot.chat(user_input)
+        words = str(response) 
+        words = words.replace("*","")
+        split = words.split(". ")
+        short_response = " ".join(split[:2])
+        # eel.DisplayMessage(short_response)
+        print("uuu",short_response)
+        speak(short_response)
+        return short_response
+    except Exception as e:
+        print(f"Chatbot error: {e}")
+        return "I'm sorry, something went wrong."
+
