@@ -32,9 +32,9 @@ def split_text_into_chunks(text, max_length=100):
     return chunks
 
 def speak(text):
-    # text =  str(text)
+    text =  str(text)
     engine = pyttsx3.init()
-    engine.setProperty('rate',120)
+    engine.setProperty('rate',125)
     eel.DisplayMessage(text)
     chunks = split_text_into_chunks(text)
     for chunk in chunks:
@@ -49,9 +49,11 @@ def takeCommands():
     r = sr.Recognizer()
     query = None  # Ensure query is defined
     with sr.Microphone() as source:
-        r.pause_threshold = 1.8
+        r.adjust_for_ambient_noise(source, duration=1)  # Adapt to background noise
+        r.energy_threshold = 300  # Adjust microphone sensitivity
         print("Listening...")
         eel.DisplayMessage("Listening....")
+        r.pause_threshold = 1.5
         try:
             audio = r.listen(source)         
             print("Recognizing...")
